@@ -153,6 +153,6 @@ if __name__ == '__main__':
         print('The request has finished sending at', time.time())
 
 
-    resp = get('http://google.com', timeout=60, send_callback=sent_callback)
+    resp = get('http://google.com', send_callback=sent_callback)
     print('response received at', time.time())
     print('resp.text=', resp.text)
