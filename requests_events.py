@@ -1,4 +1,5 @@
 import socket
+import time
 
 
 class Response:
@@ -78,10 +79,11 @@ def request(method, url, data=None, json=None, headers={}, stream=None, timeout=
         if data:
             s.send(data)
 
+        sendTime = time.time()
         if send_callback:
             send_callback()
 
-        l = readline(s)
+        l = readline(s, timeout, sendTime)
         raw = l
         print(l)
         l = l.split(None, 2)
@@ -91,7 +93,7 @@ def request(method, url, data=None, json=None, headers={}, stream=None, timeout=
             reason = l[2].rstrip()
 
         while True:
-            l = readline(s)
+            l = readline(s, timeout, sendTime)
             raw += l
             if not l or l == b"\r\n":
                 break
@@ -111,7 +113,9 @@ def request(method, url, data=None, json=None, headers={}, stream=None, timeout=
     return resp
 
 
-def readline(s):
+def readline(s, timeout, sendTime):
+    if timeout and time.time() > sendTime + timeout:
+        raise TimeoutError('The server did not respond for {} seconds after the request was sent'.format(timeout))
     l = b''
     while True:
         r = s.recv(1)
@@ -153,6 +157,6 @@ if __name__ == '__main__':
         print('The request has finished sending at', time.time())
 
 
-    resp = get('http://google.com', send_callback=sent_callback)
+    resp = get('http://google.com', timeout=10, send_callback=sent_callback)
     print('response received at', time.time())
     print('resp.text=', resp.text)

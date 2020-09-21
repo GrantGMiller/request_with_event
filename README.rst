@@ -7,7 +7,8 @@ Trigger an event when the HTTP request finishes sending (but before any data is 
     def sent_callback():
         print('The request has finished sending at', time.time())
 
-    resp = get('http://google.com', send_callback=sent_callback)
+    resp = get('http://google.com', timeout=10, send_callback=sent_callback) # timeout starts after HTTP request is sent
+
     print('response received at', time.time())
 
     print('resp.text=', resp.text)
